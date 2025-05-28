@@ -12,41 +12,38 @@ final router = Router()
   ..put('/training', updateTraining)
   ..delete('/training', deleteTraining)
   ..get('/user', getUserInfo)
-  ..get('/session', getTrainingExercises) // ← tylko ten zostaje
+  ..get('/session', getTrainingExercises)
   ..get('/training', getTrainingById)
   ..all('/<ignored|.*>', (Request request) {
-    print('❌ Route not found: \${request.method} \${request.url}');
+    print('❌ Route not found: ${request.method} ${request.url}');
     return Response.notFound('Route not found');
   });
 
 final handler = Pipeline()
     .addMiddleware(logRequests())
-    .addMiddleware(_corsMiddleware()) // ← CORS dla fetch() z HTML
+    .addMiddleware(_corsMiddleware()) // CORS dla fetch() z HTML
     .addHandler(router);
 
 Future<void> main() async {
-final port = int.parse(Platform.environment['PORT'] ?? '8080');
-final server = await serve(handler, InternetAddress.anyIPv4, port);
-print('✅ Serwer działa na http://localhost:$port');
-
-  print('✅ Serwer działa na http://localhost:\${server.port}');
+  final port = int.parse(Platform.environment['PORT'] ?? '8080');
+  final server = await serve(handler, InternetAddress.anyIPv4, port);
+  print('✅ Serwer działa na http://localhost:$port');
 }
 
 Middleware _corsMiddleware() {
   return (innerHandler) {
-    return (request) {
+    return (request) async {
       if (request.method == 'OPTIONS') {
         return Response.ok('', headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization',
         });
       }
-      return Future.sync(() => innerHandler(request)).then((response) {
-        return response.change(headers: {
-          'Access-Control-Allow-Origin': '*',
-          ...response.headers,
-        });
+      final response = await innerHandler(request);
+      return response.change(headers: {
+        'Access-Control-Allow-Origin': '*',
+        ...response.headers,
       });
     };
   };
