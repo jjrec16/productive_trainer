@@ -88,9 +88,9 @@
     async function deleteTraining(id) {
       if (!confirm("Are you sure you want to delete this training?")) return;
       try {
-        const res = await fetch(`http://localhost:8080/training?id=${id}`, {
-          method: 'DELETE'
-        });
+       const res = await fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`, {
+  method: 'DELETE'
+});
 
         if (res.ok) {
           alert("✅ Training deleted");

@@ -50,7 +50,7 @@
     if (id) {
       editTrainingId = id;
       try {
-        const res = await fetch(`http://localhost:8080/training?id=${id}`);
+fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`)
         if (!res.ok) throw new Error("Failed to fetch training");
 
         const data = await res.json();
