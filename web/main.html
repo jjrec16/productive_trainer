@@ -7,28 +7,30 @@
 </head>
 <body class="main_b">
 
-    <h2 id="greeting" class="greeting">Hello!</h2>
-    <h1 class="title">Your Trainings</h1>
-<div class="create-wrapper">
-  <a href="create.html">
-    <button class="create-btn">CREATE NEW</button>
-  </a>
-</div>
+  <h2 id="greeting" class="greeting">Hello!</h2>
+  <h1 class="title">Your Trainings</h1>
 
-    <hr class="lineTop">
+  <div class="create-wrapper">
+    <a href="create.html">
+      <button class="create-btn">CREATE NEW</button>
+    </a>
+  </div>
+
+  <hr class="lineTop">
 
   <section class="blockholder">
     <div class="blockholder" id="training-list"></div>
   </section>
 
   <script>
+    const API_URL = 'https://productive-trainer-backend.onrender.com';
     const user_id = localStorage.getItem('user_id');
     if (!user_id) {
       alert("You must be logged in!");
       window.location.href = 'login.html';
     }
 
-    fetch(`http://localhost:8080/user?user_id=${user_id}`)
+    fetch(`${API_URL}/user?user_id=${user_id}`)
       .then(res => res.json())
       .then(data => {
         document.getElementById('greeting').textContent = `Hello, ${data.firstname}!`;
@@ -39,7 +41,7 @@
 
     async function loadTrainings() {
       try {
-        const res = await fetch(`http://localhost:8080/trainings?user_id=${user_id}`);
+        const res = await fetch(`${API_URL}/trainings?user_id=${user_id}`);
         const result = await res.json();
 
         const list = document.getElementById('training-list');
@@ -88,9 +90,9 @@
     async function deleteTraining(id) {
       if (!confirm("Are you sure you want to delete this training?")) return;
       try {
-       const res = await fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`, {
-  method: 'DELETE'
-});
+        const res = await fetch(`${API_URL}/training?id=${id}`, {
+          method: 'DELETE'
+        });
 
         if (res.ok) {
           alert("✅ Training deleted");
