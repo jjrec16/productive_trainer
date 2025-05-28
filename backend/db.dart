@@ -1,13 +1,7 @@
-import 'package:mysql1/mysql1.dart';
-
-Future<MySqlConnection> getConnection() {
-  final settings = ConnectionSettings(
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '1', // ← twoje nowe hasło
-    db: 'b_pt',
-  );
-
-  return MySqlConnection.connect(settings);
-}
+final conn = await MySqlConnection.connect(ConnectionSettings(
+  host: 'sql.freedb.tech',
+  port: 3306,
+  user: 'trainer_user', // zmień na swój login
+  db: 'productive_trainer',
+  password: 'twoje_haslo', // zmień na swoje hasło
+));
