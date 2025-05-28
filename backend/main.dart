@@ -20,8 +20,8 @@ final router = Router()
   });
 
 final handler = Pipeline()
-    .addMiddleware(logRequests())
-    .addMiddleware(_corsMiddleware()) // CORS dla fetch() z HTML
+    .addMiddleware(_corsMiddleware()) // CORS jako pierwsze
+    .addMiddleware(logRequests())     // Logowanie żądań
     .addHandler(router);
 
 Future<void> main() async {
@@ -40,11 +40,17 @@ Middleware _corsMiddleware() {
           'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization',
         });
       }
-      final response = await innerHandler(request);
-      return response.change(headers: {
-        'Access-Control-Allow-Origin': '*',
-        ...response.headers,
-      });
+      try {
+        final response = await innerHandler(request);
+        return response.change(headers: {
+          'Access-Control-Allow-Origin': '*',
+          ...response.headers,
+        });
+      } catch (e, stackTrace) {
+        print('⚠️ Błąd podczas obsługi żądania: $e');
+        print(stackTrace);
+        return Response.internalServerError(body: 'Internal Server Error');
+      }
     };
   };
 }
