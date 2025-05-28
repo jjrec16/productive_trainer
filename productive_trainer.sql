@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 --
 -- Struktura tabeli dla tabeli `exercises`
 --
-CREATE DATABASE productive_trainer IF NOT EXISTS ;
+CREATE DATABASE IF NOT EXISTS productive_trainer;
 USE productive_trainer;
 
 
