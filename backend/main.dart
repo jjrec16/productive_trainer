@@ -25,7 +25,10 @@ final handler = Pipeline()
     .addHandler(router);
 
 Future<void> main() async {
-  final server = await serve(handler, InternetAddress.anyIPv4, 8080);
+final port = int.parse(Platform.environment['PORT'] ?? '8080');
+final server = await serve(handler, InternetAddress.anyIPv4, port);
+print('✅ Serwer działa na http://localhost:$port');
+
   print('✅ Serwer działa na http://localhost:\${server.port}');
 }
 
