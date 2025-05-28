@@ -1,7 +1,7 @@
 final conn = await MySqlConnection.connect(ConnectionSettings(
   host: 'sql.freedb.tech',
   port: 3306,
-  user: 'trainer_user', // zmień na swój login
-  db: 'productive_trainer',
-  password: 'twoje_haslo', // zmień na swoje hasło
+  user: 'trainer_user',       // ← Twój login z FreeDB
+  password: 'twoje_haslo',    // ← Twoje hasło
+  db: 'productive_trainer',                 // ← dokładna nazwa bazy z FreeDB
 ));
