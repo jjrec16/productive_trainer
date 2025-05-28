@@ -34,8 +34,7 @@
 
     async function loadExercises() {
       try {
-       const res = await fetch(`https://productive-trainer-backend.onrender.com/session?training_id=${trainingId}`);
-
+const res = await fetch(`https://productive-trainer-backend.onrender.com/session?training_id=${trainingId}`);
         const data = await res.json();
         exercises = [];
 

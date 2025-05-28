@@ -40,6 +40,8 @@
   </section>
 
 <script>
+  const API_URL = 'https://productive-trainer-backend.onrender.com';
+
   let totalTime = 0;
   let exercises = [];
   let editTrainingId = null;
@@ -50,7 +52,7 @@
     if (id) {
       editTrainingId = id;
       try {
-fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`)
+        const res = await fetch(`${API_URL}/training?id=${id}`);
         if (!res.ok) throw new Error("Failed to fetch training");
 
         const data = await res.json();
@@ -59,6 +61,7 @@ fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`)
         renderExercises();
       } catch (err) {
         alert("❌ Failed to load training: " + err.message);
+        console.error(err);
       }
     }
   });
@@ -142,8 +145,8 @@ fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`)
     };
 
     const url = editTrainingId
-      ? `http://localhost:8080/training?id=${editTrainingId}`
-      : 'http://localhost:8080/trainings';
+      ? `${API_URL}/training?id=${editTrainingId}`
+      : `${API_URL}/trainings`;
     const method = editTrainingId ? 'PUT' : 'POST';
 
     try {
@@ -162,10 +165,10 @@ fetch(`https://productive-trainer-backend.onrender.com/training?id=${id}`)
       }
     } catch (err) {
       alert('❌ Connection error: ' + err);
+      console.error(err);
     }
   });
 </script>
-
 
 </body>
 </html>
