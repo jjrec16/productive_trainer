@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Training</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  
+  <section class="create-training">
+    <h1>Create Your Training!</h1>
+
+    <div class="left">
+      <div class="form-name">
+        <label for="training-name">Training name:</label>
+        <input type="text" id="training-name" placeholder="e.g. Full Body Workout" required />
+      </div>
+
+      <div class="event-list" id="exercise-list"></div>
+
+      <div class="total-time">
+        Total time: <span id="total-time-display">0</span> minutes
+      </div>
+
+      <button class="save-btn" id="save-training">Save Training</button>
+    </div>
+
+    <div class="right">
+      <label for="desc">Describe exercise:</label>
+      <textarea id="desc" rows="2" placeholder="e.g. Push-ups" required></textarea>
+
+      <div class="inputs">
+        <input type="number" id="time" placeholder="Time (sec)" required />
+        <input type="number" id="sets" placeholder="Sets" required />
+      </div>
+
+      <button class="add-btn" onclick="addExercise()">＋ Add</button>
+    </div>
+  </section>
+
+<script>
+  let totalTime = 0;
+  let exercises = [];
+  let editTrainingId = null;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      editTrainingId = id;
+      try {
+        const res = await fetch(`http://localhost:8080/training?id=${id}`);
+        if (!res.ok) throw new Error("Failed to fetch training");
+
+        const data = await res.json();
+        document.getElementById('training-name').value = data.name;
+        exercises = data.exercises || [];
+        renderExercises();
+      } catch (err) {
+        alert("❌ Failed to load training: " + err.message);
+      }
+    }
+  });
+
+  function updateTotalTimeDisplay() {
+    document.getElementById('total-time-display').textContent = Math.round(totalTime / 60);
+  }
+
+  function renderExercises() {
+    const list = document.getElementById('exercise-list');
+    list.innerHTML = '';
+    totalTime = 0;
+
+    exercises.forEach((ex, index) => {
+      const time = ex.exercise_time;
+      const sets = ex.sets;
+      totalTime += time * sets;
+
+      const div = document.createElement('div');
+      div.className = 'event';
+      div.innerHTML = `
+        <div>${ex.description}</div>
+        <div>${time}s x ${sets}</div>
+        <div class="controls">
+          <button onclick="editExercise(${index})">✏</button>
+          <button onclick="deleteExercise(${index})">🗑</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    updateTotalTimeDisplay();
+  }
+
+  function addExercise() {
+    const desc = document.getElementById('desc').value;
+    const time = parseInt(document.getElementById('time').value);
+    const sets = parseInt(document.getElementById('sets').value);
+
+    if (!desc || !time || !sets) {
+      alert("Please fill in all exercise fields");
+      return;
+    }
+
+    exercises.push({ description: desc, exercise_time: time, sets });
+    renderExercises();
+
+    document.getElementById('desc').value = '';
+    document.getElementById('time').value = '';
+    document.getElementById('sets').value = '';
+  }
+
+  function deleteExercise(index) {
+    exercises.splice(index, 1);
+    renderExercises();
+  }
+
+  function editExercise(index) {
+    const ex = exercises[index];
+    document.getElementById('desc').value = ex.description;
+    document.getElementById('time').value = ex.exercise_time;
+    document.getElementById('sets').value = ex.sets;
+    exercises.splice(index, 1);
+    renderExercises();
+  }
+
+  document.getElementById('save-training').addEventListener('click', async () => {
+    const name = document.getElementById('training-name').value;
+    const user_id = localStorage.getItem('user_id') || 1;
+
+    if (!name || exercises.length === 0) {
+      alert("Please fill in training name and at least one exercise");
+      return;
+    }
+
+    const data = {
+      user_id: parseInt(user_id),
+      name,
+      total_time: Math.round(totalTime / 60),
+      exercises
+    };
+
+    const url = editTrainingId
+      ? `http://localhost:8080/training?id=${editTrainingId}`
+      : 'http://localhost:8080/trainings';
+    const method = editTrainingId ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert(editTrainingId ? '✅ Training updated!' : '✅ Training saved!');
+        window.location.href = 'main.html';
+      } else {
+        alert('❌ Error: ' + result.error);
+      }
+    } catch (err) {
+      alert('❌ Connection error: ' + err);
+    }
+  });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Session</title>
+<link rel="stylesheet" href="style.css" />
+
+</head>
+<body class="session_b">
+  <h1 class="title">Let’s do this!</h1>
+  <div class="training-name" id="training-name">Loading...</div>
+  <div class="set-number" id="set-number"></div>
+  <div class="timer" id="timer">0:00</div>
+    <div class="exercise" id="exercise-name">Loading exercise...</div>
+
+  <button id="pause-resume"> Pause</button>
+
+  <div class="controls">
+    <button onclick="previousSet()">Back set</button>
+    <button onclick="endSession()">End session</button>
+    <button onclick="skipSet()">Skip set</button>
+  </div>
+
+  <script>
+    let exercises = [];
+    let currentExercise = 0;
+    let timerInterval;
+    let time = 0;
+    let paused = false;
+
+    const params = new URLSearchParams(window.location.search);
+    const trainingId = params.get('training_id');
+
+    async function loadExercises() {
+      try {
+        const res = await fetch(`http://localhost:8080/session?training_id=${trainingId}`);
+        const data = await res.json();
+        exercises = [];
+
+        data.exercises.forEach((ex, i) => {
+          for (let s = 0; s < ex.sets; s++) {
+            exercises.push({
+              ...ex,
+              set: s + 1,
+              totalSets: ex.sets,
+              index: i + 1,
+              totalExercises: data.exercises.length
+            });
+          }
+        });
+
+        if (exercises.length === 0) {
+          document.getElementById('exercise-name').textContent = "No exercises.";
+          return;
+        }
+
+        updateExerciseUI();
+        startTimer();
+      } catch (err) {
+        document.getElementById('exercise-name').textContent = "Failed to load exercises.";
+      }
+    }
+
+    function updateExerciseUI() {
+      const ex = exercises[currentExercise];
+      document.getElementById('training-name').textContent = `Exercise ${ex.index} of ${ex.totalExercises}`;
+      document.getElementById('exercise-name').textContent = ex.description;
+      document.getElementById('set-number').textContent = `Set ${ex.set} of ${ex.totalSets}`;
+      time = ex.exercise_time;
+      updateTimerDisplay(time);
+    }
+
+    function updateTimerDisplay(sec) {
+      const minutes = Math.floor(sec / 60);
+      const seconds = sec % 60;
+      document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!paused) {
+          time--;
+          updateTimerDisplay(time);
+          if (time <= 0) {
+            clearInterval(timerInterval);
+            moveToNextSetOrExercise();
+          }
+        }
+      }, 1000);
+    }
+
+    function moveToNextSetOrExercise() {
+      currentExercise++;
+      if (currentExercise >= exercises.length) {
+        alert("Workout complete! 🎉");
+        window.location.href = "main.html";
+      } else {
+        updateExerciseUI();
+        startTimer();
+      }
+    }
+
+    function skipSet() {
+      clearInterval(timerInterval);
+      moveToNextSetOrExercise();
+    }
+
+    function previousSet() {
+      if (currentExercise > 0) {
+        currentExercise--;
+        updateExerciseUI();
+        startTimer();
+      }
+    }
+
+    function endSession() {
+      if (confirm("End this session?")) {
+        window.location.href = "main.html";
+      }
+    }
+
+    document.getElementById("pause-resume").onclick = () => {
+      paused = !paused;
+document.getElementById("pause-resume").textContent = paused ? "Resume" : "Pause";
+    };
+
+    loadExercises();
+  </script>
+</body>
+</html>
