@@ -39,10 +39,14 @@ final router = Router()
   ..get('/training', getTrainingById)
 
   // Not found
-  ..all('/<ignored|.*>', (Request request) {
-    print('❌ Route not found: ${request.method} ${request.url}');
-    return Response.notFound(jsonEncode({'error': 'Route not found'}), headers: {'Content-Type': 'application/json'});
-  });
+..all('/<ignored|.*>', (Request request) {
+  print('❌ Route not found: ${request.method} ${request.url}');
+  return Response.notFound(
+    jsonEncode({'error': 'Route not found'}),
+    headers: {'Content-Type': 'application/json'},
+  );
+});
+
 
 final handler = Pipeline()
     .addMiddleware(_corsMiddleware())
