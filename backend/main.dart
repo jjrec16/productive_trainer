@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'handlers.dart';
+const allowedOrigin = 'https://productive-trainer-frontend.onrender.com';
 
 final router = Router()
 
@@ -53,21 +54,25 @@ Future<void> main() async {
 Middleware _corsMiddleware() {
   return (innerHandler) {
     return (request) async {
-      // Obsługa pre-flight OPTIONS
+      // Obsługa zapytania preflight (OPTIONS)
       if (request.method == 'OPTIONS') {
         return Response.ok('', headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': allowedOrigin,
           'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization',
+          'Access-Control-Allow-Credentials': 'true',
         });
       }
 
-      // Obsługa pozostałych zapytań z nagłówkami CORS
+      // Obsługa innych metod
       final response = await innerHandler(request);
       return response.change(headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': allowedOrigin,
+        'Access-Control-Allow-Credentials': 'true',
         ...response.headers,
       });
     };
   };
 }
+
+
