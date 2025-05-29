@@ -5,13 +5,6 @@ import 'package:shelf_router/shelf_router.dart';
 import 'handlers.dart';
 
 final router = Router()
-  ..options('/<ignored|.*>', (Request request) {
-    return Response.ok('', headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization',
-    });
-  })
   ..post('/signup', registerUser)
   ..post('/login', loginUser)
   ..post('/trainings', addTraining)
