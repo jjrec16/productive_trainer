@@ -1,14 +1,9 @@
-# Pobierz oficjalny obraz Dart z Docker Hub
 FROM dart:stable
 
-# Ustaw katalog roboczy w kontenerze na /app
-WORKDIR /app
+WORKDIR /app/backend  # <-- zmieniamy katalog roboczy na backend
 
-# Skopiuj wszystkie pliki projektu do kontenera
-COPY . .
+COPY backend ./  # kopiujemy zawartość folderu backend do katalogu roboczego w kontenerze
 
-# Zainstaluj zależności Dart
 RUN dart pub get
 
-# Uruchom backend Dart (dopasuj ścieżkę, jeśli masz inny plik main.dart)
-CMD ["dart", "run", "backend/main.dart"]
+CMD ["dart", "run", "main.dart"]
